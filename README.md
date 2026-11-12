@@ -1,12 +1,18 @@
 # VoiceOps-Bench
 
-基于 BANKING77 的银行客服意图评测与标注质检项目。项目使用四类英文意图建立分类基线，验证去重、标签冲突和数据泄漏检查规则，并用中英边界样本演示模型初标与人工复核流程。
+VoiceOps-Bench classifies English banking support messages and flags annotation problems for human review. The project uses BANKING77 for classification and a small set of English and Chinese examples to demonstrate annotation review.
 
-## 快速开始
+1. **Classify support messages.** Assign a message to one of four intents: lost or stolen card, lost or stolen phone, unrecognized card payment, or unrecognized cash withdrawal. The baseline finds the five most similar labeled messages and uses their labels to vote.
+2. **Check training data.** Detect duplicate messages, conflicting labels for the same text, and test messages that appear in training. The cleanup report records each removed sample and the reason.
+3. **Audit annotations.** Compare predictions with reference labels and flag missing predictions, label disagreements, evidence excerpts missing from the input, and ambiguous requests. The audit accepts the included demo predictions or output from a local model.
 
-需要 Git 和 Python 3.10 或更新版本。以下三个实验只使用 Python 标准库。
+**Example:** In case `edge-02`, the customer says in Chinese, “My phone was stolen. My bank card is in my wallet.” The reference label is **lost or stolen phone**. The demo prediction deliberately labels it **lost or stolen card**. The audit matches the two records by ID and puts the disagreement in the review queue.
 
-```powershell
+## Quick start
+
+The three experiments below use the Python standard library. You need Git and Python 3.10 or later.
+
+```sh
 git clone https://github.com/YxChen02/voiceops-bench.git
 cd voiceops-bench
 git clone https://github.com/PolyAI-LDN/task-specific-datasets.git
@@ -17,50 +23,48 @@ python quality_regression.py --data task-specific-datasets/banking_data
 python annotation_audit.py demo_predictions.jsonl
 ```
 
-## 数据与评测方法
+## Data and evaluation
 
-BANKING77 包含 77 类英文银行客服提问，官方训练集有 10,003 条，测试集有 3,080 条。本项目沿用原始划分，选取银行卡遗失或被盗、手机遗失或被盗、未识别的刷卡交易和未识别的取款四类，共 **531 条训练样本和 160 条测试样本**。上游 `banking_data/train.csv` 用于构建训练池，`banking_data/test.csv` 用于评测。两个文件均包含提问文本 `text` 和意图标签 `category`。数据以 CC BY 4.0 发布。[上游数据说明](https://github.com/PolyAI-LDN/task-specific-datasets#banking) · [原始论文](https://arxiv.org/abs/2003.04807)
+BANKING77 contains 77 English banking intents, with 10,003 training examples and 3,080 test examples in the original split. This project keeps the original split and selects **531 training examples and 160 test examples** across the four intents above. The upstream `banking_data/train.csv` and `banking_data/test.csv` files contain a customer message in `text` and its intent in `category`. The dataset is distributed under CC BY 4.0. [Dataset documentation](https://github.com/PolyAI-LDN/task-specific-datasets#banking) · [Original paper](https://arxiv.org/abs/2003.04807)
 
-两个训练池均遮盖邮箱和长数字串，并排除规范化后与测试集完全匹配的记录。清洗版额外合并训练池中同文本、同标签的记录，并隔离同文本、不同标签的记录。分类基线基于词和字符三元组计算 Jaccard 相似度，由最相近的五条训练样本投票。两版使用同一个分类器和测试集。
+Both training pools mask email addresses and long digit sequences and exclude exact matches with the test set after text normalization. The cleaned pool also collapses duplicates that share a label and excludes groups with conflicting labels. The classifier ranks examples by Jaccard similarity over words and character trigrams. Both runs use the same classifier and test set.
 
-标注质检另用 10 条人工编写的中英边界样本，其中两条含模拟语音转写错误。遗失对象或交易渠道缺失时，参考标签可以是 `needs_review`。预测需附原文证据，脚本检查证据是否出现在输入中，复核时再判断证据是否支持意图。
+The annotation audit uses 10 manually written English and Chinese reference cases, including two with simulated speech recognition errors. Cases can be labeled `needs_review` when the missing item or transaction channel is unclear. The audit checks whether the evidence appears in the input. A reviewer still needs to judge whether that excerpt supports the label.
 
-## 实验结果
+## Results
 
-- **分类基线。** 两版训练池各有 531 条样本，Macro-F1 均为 **0.9564**，在 160 条测试样本上各有 7 条误判。该子集未触发训练池内去重或标签冲突规则，两版实际使用相同的训练样本。
-- **清洗规则回归。** 向训练池注入三条已知问题记录，分别是格式变体、同文本异标签和跨集合重复。脚本识别了全部三条，并一并隔离了与注入记录冲突的一条原始样本。
-- **标注质检。** 对 10 条参考样本提供 9 条手工构造的预测，7 条标签匹配且证据通过检查，5 条进入复核队列。复核队列包含两条正确标为 `needs_review` 的歧义样本。初标接口已用模拟服务验证，真实 LLM 的标注表现尚未测量。
+- **Classification.** Both training pools contained 531 examples. Both runs achieved **0.9564 Macro-F1**, with **7 errors on 160 test examples**. The duplicate and conflict rules did not change the selected training pool, so this comparison provides no estimate of their effect on classification performance.
+- **Cleanup regression.** The script injected three known defects: a formatting variant, an identical message with a conflicting label, and a message copied from the test set. It detected all three and also excluded the original record that conflicted with the injected label.
+- **Annotation audit.** The demo supplies 9 predictions for 10 reference cases. Seven had matching labels and evidence found in the input. Five cases entered the review queue, including two for which the prediction and reference both used `needs_review`. A mock service verified the local model integration. Real LLM annotation performance has yet to be measured.
 
-错例 `test:1673` 的文本是 “Someone stole my cards!”。基线判为银行卡被盗，数据集标签为手机遗失。报告保留原文、预测和数据集标签，可据此复核标签是否准确。
+In BANKING77 case `test:1673`, the message reads “Someone stole my cards!” The baseline predicted a lost or stolen card, while the dataset label says lost or stolen phone. The evaluation report keeps the message, prediction, and dataset label together for review.
 
-## 文件说明
+## Repository files
 
-- `voiceops.py` 读取 BANKING77 的训练和测试 CSV，生成两版训练池，并输出评测指标、错例和清洗记录。[分类评测脚本](voiceops.py)
-- `quality_regression.py` 复用同一套清洗规则，注入已知问题并检查处理结果。[清洗回归脚本](quality_regression.py)
-- `edge_cases.jsonl` 保存中英参考样本，每行包含样本 ID、原文、参考标签和判定理由。字段 `noise` 标记模拟语音转写样本。[标注参考集](edge_cases.jsonl)
-- `demo_predictions.jsonl` 保存手工构造的预测，每行包含样本 ID、预测标签和证据，用于演示错标、证据缺失和漏标的检查。[质检示例输入](demo_predictions.jsonl)
-- `annotate.py` 将脱敏后的样本文本发送给本机模型服务，把模型返回的意图和证据连同样本 ID 写入预测文件。[模型初标脚本](annotate.py)
-- `annotation_audit.py` 按样本 ID 对照参考标签与预测，检查证据、漏标和歧义，并输出汇总和复核队列。[标注质检脚本](annotation_audit.py)
-- `README.md` 记录项目范围、实验结果和运行方法。[项目文档](README.md)
-- `.gitignore` 排除本地运行结果、上游数据仓库、Python 缓存和 `.env`。[Git 忽略规则](.gitignore)
+- [`voiceops.py`](voiceops.py) reads the BANKING77 CSV files, builds both training pools, and writes the classification metrics, errors, and cleanup records.
+- [`quality_regression.py`](quality_regression.py) injects known defects into the training pool and checks that the cleanup rules produce the expected results.
+- [`edge_cases.jsonl`](edge_cases.jsonl) contains the English and Chinese reference cases, with an ID, message, reference label, and reason on each line. The `noise` field marks simulated speech recognition errors.
+- [`demo_predictions.jsonl`](demo_predictions.jsonl) contains hand-written predictions used to demonstrate label disagreements, evidence checks, and missing predictions.
+- [`annotate.py`](annotate.py) sends masked messages to a local model and saves the resulting intent and evidence alongside each case ID.
+- [`annotation_audit.py`](annotation_audit.py) matches predictions to reference cases by ID and writes summary counts and a review queue.
+- [`README.md`](README.md) documents the project, experiments, and commands.
+- [`.gitignore`](.gitignore) excludes generated outputs, the cloned dataset repository, Python caches, and local `.env` files.
 
-例如，`edge-02` 的原文说明手机被盗，银行卡仍在钱包里。参考集将其标为手机被盗，示例预测却标为银行卡遗失。质检脚本通过相同的样本 ID 将两条记录对应起来，并将标签分歧写入复核队列。
+## Generated files
 
-## 运行产物
+- `runs/local/report.json` contains source file hashes, Macro-F1 scores, confusion matrices, and individual classification errors for both runs.
+- `runs/local/pool-v1.json` contains the baseline training pool after excluding matches with the test set.
+- `runs/local/pool-v2.json` contains the training pool after also handling duplicates and label conflicts within training.
+- `runs/local/review.json` records the IDs of removed training samples and the reasons for removal.
+- `runs/regression.json` records the number of retained samples and the disposition of flagged records in the injected-defect experiment.
+- `runs/annotation-audit.json` contains audit counts and the review queue, including reference labels, predictions, and review reasons.
+- `runs/model_predictions.jsonl` contains the case ID, predicted intent, and evidence for each response from the local model.
 
-- `runs/local/report.json` 包含输入文件哈希、两版 Macro-F1、混淆矩阵和逐条错例。
-- `runs/local/pool-v1.json` 保存排除与测试集重复记录后的基线训练池。
-- `runs/local/pool-v2.json` 保存额外处理训练池内重复和标签冲突后的训练池。
-- `runs/local/review.json` 记录清洗时移除的训练样本 ID 及原因。
-- `runs/regression.json` 记录注入缺陷后的保留数量及每条复核记录。
-- `runs/annotation-audit.json` 包含质检计数，以及待复核样本的参考标签、预测和触发原因。
-- `runs/model_predictions.jsonl` 由本地模型初标生成，保存样本 ID、预测意图和证据。
+## Run annotations with a local model
 
-## 使用本地模型初标
+Start a local Chat Completions service that supports JSON output. Replace `MODEL_ID` with the name of a loaded model. The script connects to `127.0.0.1:11434` by default. Use `--port` to select another port.
 
-启动支持 JSON 输出的本地 Chat Completions 服务后，将 `MODEL_ID` 替换为服务中的模型名。脚本默认连接 `127.0.0.1:11434`，端口可用 `--port` 修改。
-
-```powershell
+```sh
 python annotate.py --model MODEL_ID
 python annotation_audit.py runs/model_predictions.jsonl
 ```
