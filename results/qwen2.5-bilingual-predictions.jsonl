@@ -1,0 +1,10 @@
+{"id": "edge-01", "label": "lost_or_stolen_card", "evidence": "银行卡找不到了"}
+{"id": "edge-02", "label": "lost_or_stolen_phone", "evidence": "手机被偷了"}
+{"id": "edge-03", "label": "card_payment_not_recognised", "evidence": "账单上有一笔没见过的刷卡消费。"}
+{"id": "edge-04", "label": "cash_withdrawal_not_recognised", "evidence": "有一笔 ATM 取现记录，我没取过。"}
+{"id": "edge-05", "label": "lost_or_stolen_card", "evidence": "银航卡"}
+{"id": "edge-06", "label": "card_payment_not_recognised", "evidence": "有人从 ATM 取县了"}
+{"id": "edge-07", "label": "card_payment_not_recognised", "evidence": "有一笔扣款不是我做的。"}
+{"id": "edge-08", "label": "needs_review", "evidence": "I can't find it, but I still have my wallet."}
+{"id": "edge-09", "label": "lost_or_stolen_phone", "evidence": "My phone was stolen."}
+{"id": "edge-10", "label": "needs_review", "evidence": "There is a shop payment I never authorised."}

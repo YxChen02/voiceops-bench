@@ -1,0 +1,201 @@
+{
+  "model_source": "https://www.modelscope.cn/models/Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+  "weights_file": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "weights_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "runtime": "llama.cpp b6500 (a7a98e0f), Vulkan",
+  "device": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "inference": {
+    "temperature": 0,
+    "max_tokens": 160,
+    "parallel": 4,
+    "context_size": 8192
+  },
+  "dataset_commit": "57ec275d8078af65b7731c2a98be812d844a6d6b",
+  "model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "training_pool_rows": 531,
+  "cleanup_reasons": {},
+  "source_sha256": {
+    "train": "b06e26ac675513959a63135f11b94ea7786ed02da65db93a5650d8838cbc664b",
+    "test": "d12d6e3bc4c3103966ae786dc435913c0c563dfa328f5a3646d0e62cfeeb474d"
+  },
+  "policy_sha256": "26109dc3eb868c4ab4e781852d2f0d91c56b5e3fbdf688d2818d977e58845178",
+  "few_shot_examples": [
+    {
+      "id": "train:3582",
+      "text": "I have a card payment I didn't make",
+      "label": "card_payment_not_recognised"
+    },
+    {
+      "id": "train:8804",
+      "text": "There's a cash withdrawal I didn't make",
+      "label": "cash_withdrawal_not_recognised"
+    },
+    {
+      "id": "train:1488",
+      "text": "My card was stolen",
+      "label": "lost_or_stolen_card"
+    },
+    {
+      "id": "train:5288",
+      "text": "My phone was stolen, help!",
+      "label": "lost_or_stolen_phone"
+    }
+  ],
+  "zero_shot": {
+    "rows": 160,
+    "correct": 110,
+    "accuracy": 0.6875,
+    "macro_f1": 0.7592,
+    "per_intent_f1": {
+      "card_payment_not_recognised": 0.6333,
+      "cash_withdrawal_not_recognised": 0.8235,
+      "lost_or_stolen_card": 0.8298,
+      "lost_or_stolen_phone": 0.75
+    },
+    "confusion": {
+      "card_payment_not_recognised": {
+        "needs_review": 18,
+        "card_payment_not_recognised": 19,
+        "lost_or_stolen_card": 3
+      },
+      "cash_withdrawal_not_recognised": {
+        "lost_or_stolen_card": 6,
+        "cash_withdrawal_not_recognised": 28,
+        "card_payment_not_recognised": 1,
+        "needs_review": 5
+      },
+      "lost_or_stolen_card": {
+        "lost_or_stolen_card": 39,
+        "needs_review": 1
+      },
+      "lost_or_stolen_phone": {
+        "lost_or_stolen_phone": 24,
+        "lost_or_stolen_card": 6,
+        "needs_review": 10
+      }
+    },
+    "needs_review_predictions": 34,
+    "invalid_predictions": 0,
+    "review_queue_size": 56,
+    "review_reasons": {
+      "ambiguous_intent": 34,
+      "reference_disagreement": 50,
+      "evidence_not_in_source": 8
+    }
+  },
+  "few_shot": {
+    "rows": 160,
+    "correct": 89,
+    "accuracy": 0.5563,
+    "macro_f1": 0.6526,
+    "per_intent_f1": {
+      "card_payment_not_recognised": 0.5085,
+      "cash_withdrawal_not_recognised": 0.6441,
+      "lost_or_stolen_card": 0.8864,
+      "lost_or_stolen_phone": 0.5714
+    },
+    "confusion": {
+      "card_payment_not_recognised": {
+        "needs_review": 25,
+        "card_payment_not_recognised": 15
+      },
+      "cash_withdrawal_not_recognised": {
+        "lost_or_stolen_card": 6,
+        "cash_withdrawal_not_recognised": 19,
+        "needs_review": 11,
+        "card_payment_not_recognised": 4
+      },
+      "lost_or_stolen_card": {
+        "lost_or_stolen_card": 39,
+        "needs_review": 1
+      },
+      "lost_or_stolen_phone": {
+        "lost_or_stolen_phone": 16,
+        "needs_review": 21,
+        "lost_or_stolen_card": 3
+      }
+    },
+    "needs_review_predictions": 58,
+    "invalid_predictions": 0,
+    "review_queue_size": 71,
+    "review_reasons": {
+      "ambiguous_intent": 58,
+      "reference_disagreement": 71,
+      "evidence_not_in_source": 1
+    }
+  },
+  "bilingual_audit": {
+    "cases": 10,
+    "predictions": 10,
+    "matches_with_valid_evidence": 7,
+    "review_counts": {
+      "reference_disagreement": 3,
+      "ambiguous_intent": 3
+    },
+    "queue": [
+      {
+        "id": "edge-06",
+        "text": "有人从 ATM 取县了，但不是我。",
+        "reference": "cash_withdrawal_not_recognised",
+        "reference_reason": "模拟同音转写，ATM 提供渠道证据。",
+        "candidate": {
+          "id": "edge-06",
+          "label": "card_payment_not_recognised",
+          "evidence": "有人从 ATM 取县了"
+        },
+        "flags": [
+          "reference_disagreement"
+        ]
+      },
+      {
+        "id": "edge-07",
+        "text": "有一笔扣款不是我做的。",
+        "reference": "needs_review",
+        "reference_reason": "渠道未说明。",
+        "candidate": {
+          "id": "edge-07",
+          "label": "card_payment_not_recognised",
+          "evidence": "有一笔扣款不是我做的。"
+        },
+        "flags": [
+          "reference_disagreement",
+          "ambiguous_intent"
+        ]
+      },
+      {
+        "id": "edge-08",
+        "text": "I can't find it, but I still have my wallet.",
+        "reference": "needs_review",
+        "reference_reason": "遗失对象未说明。",
+        "candidate": {
+          "id": "edge-08",
+          "label": "needs_review",
+          "evidence": "I can't find it, but I still have my wallet."
+        },
+        "flags": [
+          "ambiguous_intent"
+        ]
+      },
+      {
+        "id": "edge-10",
+        "text": "There is a shop payment I never authorised.",
+        "reference": "card_payment_not_recognised",
+        "reference_reason": "The transaction is described as a merchant payment.",
+        "candidate": {
+          "id": "edge-10",
+          "label": "needs_review",
+          "evidence": "There is a shop payment I never authorised."
+        },
+        "flags": [
+          "reference_disagreement",
+          "ambiguous_intent"
+        ]
+      }
+    ]
+  },
+  "knn_baseline": {
+    "rows": 160,
+    "training_pool_rows": 531,
+    "macro_f1": 0.9564
+  }
+}
