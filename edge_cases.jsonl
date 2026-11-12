@@ -1,0 +1,10 @@
+{"id":"edge-01","text":"银行卡找不到了，手机还在。","label":"lost_or_stolen_card","reason":"遗失的是银行卡。"}
+{"id":"edge-02","text":"手机被偷了，银行卡在钱包里。","label":"lost_or_stolen_phone","reason":"遗失的是手机。"}
+{"id":"edge-03","text":"账单上有一笔没见过的刷卡消费。","label":"card_payment_not_recognised","reason":"渠道为刷卡消费。"}
+{"id":"edge-04","text":"有一笔 ATM 取现记录，我没取过。","label":"cash_withdrawal_not_recognised","reason":"渠道为 ATM 取现。"}
+{"id":"edge-05","text":"我的银航卡找不到了。","label":"lost_or_stolen_card","reason":"模拟同音转写，遗失对象仍可判定。","noise":"simulated_asr"}
+{"id":"edge-06","text":"有人从 ATM 取县了，但不是我。","label":"cash_withdrawal_not_recognised","reason":"模拟同音转写，ATM 提供渠道证据。","noise":"simulated_asr"}
+{"id":"edge-07","text":"有一笔扣款不是我做的。","label":"needs_review","reason":"渠道未说明。"}
+{"id":"edge-08","text":"I can't find it, but I still have my wallet.","label":"needs_review","reason":"遗失对象未说明。"}
+{"id":"edge-09","text":"My phone was stolen. The debit card is in my pocket.","label":"lost_or_stolen_phone","reason":"The phone is the missing object."}
+{"id":"edge-10","text":"There is a shop payment I never authorised.","label":"card_payment_not_recognised","reason":"The transaction is described as a merchant payment."}

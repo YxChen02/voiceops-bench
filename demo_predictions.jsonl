@@ -1,0 +1,9 @@
+{"id":"edge-01","label":"lost_or_stolen_card","evidence":"银行卡找不到了"}
+{"id":"edge-02","label":"lost_or_stolen_card","evidence":"银行卡在钱包里"}
+{"id":"edge-03","label":"card_payment_not_recognised","evidence":"unauthorised card purchase"}
+{"id":"edge-04","label":"cash_withdrawal_not_recognised","evidence":"ATM 取现记录，我没取过"}
+{"id":"edge-05","label":"lost_or_stolen_card","evidence":"银航卡找不到了"}
+{"id":"edge-06","label":"cash_withdrawal_not_recognised","evidence":"ATM 取县了，但不是我"}
+{"id":"edge-07","label":"needs_review","evidence":"有一笔扣款不是我做的"}
+{"id":"edge-08","label":"needs_review","evidence":"I can't find it"}
+{"id":"edge-09","label":"lost_or_stolen_phone","evidence":"My phone was stolen"}
